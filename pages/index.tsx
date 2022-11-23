@@ -1,5 +1,6 @@
 import { Container, Heading, Stack } from "@chakra-ui/react";
 import Head from "next/head";
+import TaskAddForm from "../components/TaskAddFrom";
 import TaskList from "../components/TaskList";
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
         <Container my="32px">
           <Stack spacing="32px">
             <Heading>TASK LIST</Heading>
+            <TaskAddForm />
             <TaskList />
           </Stack>
         </Container>
