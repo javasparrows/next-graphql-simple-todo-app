@@ -1,7 +1,22 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Checkbox, Flex, List, ListItem, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Checkbox,
+  Flex,
+  List,
+  ListItem,
+  Table,
+  TableContainer,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+} from "@chakra-ui/react";
 import { Task } from "@prisma/client";
 import TaskDeleteButton from "./TaskDeleteButton";
+import getDatetime from "../features/getDatetime";
 
 export const AllTasksQuery = gql`
   query {
@@ -45,27 +60,40 @@ const TaskList: React.FC = () => {
 
   const tasks = [...data.tasks].sort((a: Task, b: Task) => b.id - a.id);
 
-  console.log(tasks[0]);
-
   return (
-    <List>
-      {tasks.map((task: Task) => (
-        <ListItem key={task.id}>
-          <Flex justify="space-between">
-            <Checkbox
-              colorScheme="teal"
-              isChecked={task?.done}
-              onChange={() => handleCheckboxClick(task)}
-            >
-              {task.title}
-            </Checkbox>
-            <Text>{task.createdAt}</Text>
-            <Text>{task.updatedAt}</Text>
-            <TaskDeleteButton taskId={task.id} />
-          </Flex>
-        </ListItem>
-      ))}
-    </List>
+    <TableContainer>
+      <Table variant="simple">
+        <Thead>
+          <Tr>
+            <Th>Todoの内容</Th>
+            <Th>作成日時</Th>
+            <Th>最終更新日時</Th>
+            <Th>削除ボタン</Th>
+          </Tr>
+        </Thead>
+        {tasks.map((task: Task) => (
+          <Tbody key={task.id}>
+            <Tr>
+              <Td>
+                <Checkbox
+                  colorScheme="teal"
+                  isChecked={task?.done}
+                  onChange={() => handleCheckboxClick(task)}
+                >
+                  {task.title}
+                </Checkbox>
+              </Td>
+
+              <Td>{getDatetime(task.createdAt)}</Td>
+              <Td>{getDatetime(task.updatedAt)}</Td>
+              <Td>
+                <TaskDeleteButton taskId={task.id} />
+              </Td>
+            </Tr>
+          </Tbody>
+        ))}
+      </Table>
+    </TableContainer>
   );
 };
 
