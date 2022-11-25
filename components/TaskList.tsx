@@ -1,12 +1,7 @@
-import { gql, useQuery } from "@apollo/client";
-import { Checkbox, List, ListItem } from "@chakra-ui/react";
-import {
-  Key,
-  ReactElement,
-  JSXElementConstructor,
-  ReactFragment,
-  ReactPortal,
-} from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { Checkbox, Flex, List, ListItem } from "@chakra-ui/react";
+import { Task } from "@prisma/client";
+import TaskDeleteButton from "./TaskDeleteButton";
 
 export const AllTasksQuery = gql`
   query {
@@ -18,33 +13,50 @@ export const AllTasksQuery = gql`
   }
 `;
 
-interface taskProp {
-  id: Key | null | undefined;
-  title:
-    | string
-    | number
-    | boolean
-    | ReactElement<any, string | JSXElementConstructor<any>>
-    | ReactFragment
-    | ReactPortal
-    | null
-    | undefined;
-  done: boolean | undefined;
-}
+const UpdateTaskMutation = gql`
+  mutation UpdateTask($id: Int!, $title: String!, $done: Boolean!) {
+    updateTask(id: $id, title: $title, done: $done) {
+      id
+    }
+  }
+`;
 
 const TaskList: React.FC = () => {
   const { data, loading, error } = useQuery(AllTasksQuery);
+  const [updateTask, mutation] = useMutation(UpdateTaskMutation, {
+    refetchQueries: [AllTasksQuery],
+  });
+
+  const handleCheckboxClick = (task: Task) => {
+    updateTask({
+      variables: {
+        id: task.id,
+        title: task.title,
+        done: !task.done,
+      },
+    });
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
+  if (mutation.error) return <p>Error: {mutation.error.message}</p>;
+
+  const tasks = [...data.tasks].sort((a: Task, b: Task) => b.id - a.id);
 
   return (
     <List>
-      {data.tasks.map((task: taskProp) => (
+      {tasks.map((task: Task) => (
         <ListItem key={task.id}>
-          <Checkbox colorScheme="teal" isChecked={task.done}>
-            {task.title}
-          </Checkbox>
+          <Flex justify="space-between">
+            <Checkbox
+              colorScheme="teal"
+              isChecked={task?.done}
+              onChange={() => handleCheckboxClick(task)}
+            >
+              {task.title}
+            </Checkbox>
+            <TaskDeleteButton taskId={task.id} />
+          </Flex>
         </ListItem>
       ))}
     </List>
