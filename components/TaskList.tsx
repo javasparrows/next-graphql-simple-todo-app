@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { Checkbox, Flex, List, ListItem } from "@chakra-ui/react";
+import { Checkbox, Flex, List, ListItem, Text } from "@chakra-ui/react";
 import { Task } from "@prisma/client";
 import TaskDeleteButton from "./TaskDeleteButton";
 
@@ -9,6 +9,8 @@ export const AllTasksQuery = gql`
       id
       title
       done
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -43,6 +45,8 @@ const TaskList: React.FC = () => {
 
   const tasks = [...data.tasks].sort((a: Task, b: Task) => b.id - a.id);
 
+  console.log(tasks[0]);
+
   return (
     <List>
       {tasks.map((task: Task) => (
@@ -55,6 +59,8 @@ const TaskList: React.FC = () => {
             >
               {task.title}
             </Checkbox>
+            <Text>{task.createdAt}</Text>
+            <Text>{task.updatedAt}</Text>
             <TaskDeleteButton taskId={task.id} />
           </Flex>
         </ListItem>

@@ -5,15 +5,28 @@ import {
   stringArg,
   intArg,
   booleanArg,
+  makeSchema,
+  decorateType,
+  asNexusMethod,
 } from "nexus";
+import { GraphQLDateTime } from "graphql-scalars";
 
-export const Task = objectType({
-  name: "Task",
-  definition(t) {
-    t.nonNull.int("id");
-    t.nonNull.string("title");
-    t.nonNull.boolean("done");
-  },
+export const Task = makeSchema({
+  types: [
+    asNexusMethod(GraphQLDateTime, "dateTime"),
+    objectType({
+      name: "Task",
+      definition(t) {
+        t.nonNull.int("id");
+        t.nonNull.string("title");
+        t.nonNull.boolean("done");
+        // @ts-ignore
+        t.dateTime("createdAt");
+        // @ts-ignore
+        t.dateTime("updatedAt");
+      },
+    }),
+  ],
 });
 
 export const TasksQuery = extendType({
